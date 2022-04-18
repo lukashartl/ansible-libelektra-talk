@@ -1,0 +1,59 @@
+---
+- name: showcase common tasks
+  hosts: all
+  tasks:
+    - name: install qemu-guest-agent
+      package:
+        name: qemu-guest-agent
+        state: present
+
+    - name: update all packages
+      package:
+        name: '*'
+        state: 'latest'
+
+- name: install libelektra
+  hosts: example01.example.com
+
+  tasks:
+    - name: install gpg
+      package:
+        name: gpg
+
+    - name: add libelektra key
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: 'F26BBE02F3C315A19BF1F791A9A25CC1CC83E839'
+
+    - name: app libelektra apt repository
+      apt_repository:
+        repo: deb https://debs.libelektra.org/bullseye bullseye main
+        state: present
+
+    - name: install libelektra
+      ansible.builtin.package:
+        name: libelektra5-all
+        state: latest
+
+- name: set values in kdb
+  hosts: example01.example.com
+  collections:
+    - elektra_initiative.libelektra
+  tasks:
+    - name: set some values
+      elektra:
+        mountpoint: 'system:/tests/hello'
+        keys:
+          hello: 123
+          hello2: 'test123'
+
+    - name: write gateway to etc hosts
+      elektra:
+        mountpoint: system:/hosts
+        filename: /etc/hosts
+        recommends: True
+        plugins:
+          - hosts:
+        keys:
+          ipv4:
+            mygateway: '{{ ansible_default_ipv4.gateway }}'
