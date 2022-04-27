@@ -180,3 +180,52 @@ example01 | SUCCESS => {
 * Demo 1: installing packages
 * Demo 2: Install libelektra on Debian
 * Demo 3: Setting keys, mounting files
+
+# Lecture
+
+## Question: Modules
+
+Why should we use modules like `package`, etc. over `shell`? Isn't `shell` more powerful (Pipes, ...)?
+
+```yaml
+- name: install htop
+  shell: apt install htop
+```
+
+## Question: Shell
+
+Any problems here? YES!
+
+```yaml
+- name: set Gateway
+  shell: |
+    echo "GATEWAY=10.0.0.1" >> /etc/sysconfig/network
+```
+
+## Configure network (using NetworkManager)
+
+```yaml
+- name: configure eno1
+  nmcli:
+    type: ethernet
+    conn_name: 'Connection eno1'
+    ifname: 'eno1'
+    ip4: '10.0.0.8/24'
+    gw4: '10.0.0.1'
+    dns4: '1.0.0.1'
+    state: present
+  notify:
+    - restart network
+```
+
+## Role: file structure
+
+```
+.
+|-- handlers
+|   |-- main.yml
+|-- tasks
+|   |-- main.yml
+|-- templates/
+|-- vars/
+```
